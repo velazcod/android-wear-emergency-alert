@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Emergency Alert For Wear</string>
+    <string name="app_name_long">Emergency Alert For Android Wear</string>
+    <string name="app_name_short">Emergency Alert</string>
+
+    <!-- Preferences -->
+    <string name="pref_category_general">Configuration</string>
+    <string name="pref_category_sms_config">SMS Configuration</string>
+    <string name="toast_enable_service_msg">Enable the service called \'%1$s\'</string>
+    <string name="pref_enable_service">Accessibility service</string>
+    <string name="pref_enable_service_sry_enabled">Accessibility service is ENABLED.</string>
+    <string name="pref_enable_service_sry_disabled">Accessibility service is DISABLED. The app will not work.</string>
+    <string name="pref_phone_number">Phone number</string>
+    <string name="pref_phone_number_summary">Phone number to send SMS to</string>
+    <string name="pref_sms_emergency_message">Emergency message</string>
+    <string name="pref_sms_emergency_message_summary">Emergency message to send as SMS in case of emergency</string>
+    <string name="pref_sms_send_location">Send location</string>
+    <string name="pref_sms_send_location_summary">Send your location in a separate message after the emergency message is sent.</string>
+    <string name="pref_show_notification">Show notification</string>
+    <string name="pref_show_notification_summary">Show a notification on your phone when an emergency alert is triggered from the watch.</string>
+
+    <string name="default_emergency_message">Automatic emergency message: Something happened!</string>
+
+    <string name="message_last_location">Last known location: http://maps.google.com/maps?q=%1$s,%2$s on %3$s</string>
+    <string name="message_current_location">Current location: http://maps.google.com/maps?q=%1$s,%2$s on %3$s</string>
+
+    <string name="enable_service_later">Later</string>
+    <string name="enable_service_yes">Enable service</string>
+    <string name="enable_service_msg">You must enable the accessibility service for message alerts to be sent, otherwise the alerts won\'t be sent.</string>
+
+    <string name="notification_title">Emergency Alert for Wear</string>
+    <string name="notification_content">An emergency alert was triggered by your Watch.</string>
+
+    <string name="accessibility_service_description">Accessibility service to allow the connected watch to send Emergency Alert SMSs at any time. This application does not store ANY input information on your device.</string>
+
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_category_general">
+
+        <PreferenceScreen
+            android:key="_enable_service"
+            android:title="@string/pref_enable_service"/>
+
+        <CheckBoxPreference
+            android:key="_show_notification"
+            android:title="@string/pref_show_notification"
+            android:summary="@string/pref_show_notification_summary"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_sms_config">
+
+        <EditTextPreference
+            android:key="_contact_phone_number"
+            android:title="@string/pref_phone_number"
+            android:summary="@string/pref_phone_number_summary"
+            android:inputType="phone"
+            android:defaultValue="" />
+
+        <EditTextPreference
+            android:key="_sms_emergency_message"
+            android:title="@string/pref_sms_emergency_message"
+            android:summary="@string/pref_sms_emergency_message_summary"
+            android:inputType="text"
+            android:maxLength="140"
+            android:singleLine="true"
+            android:defaultValue="@string/default_emergency_message" />
+
+        <CheckBoxPreference
+            android:key="_sms_send_location"
+            android:title="@string/pref_sms_send_location"
+            android:summary="@string/pref_sms_send_location_summary"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
