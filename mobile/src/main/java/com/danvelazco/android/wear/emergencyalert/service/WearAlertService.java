@@ -48,8 +48,6 @@ public class WearAlertService extends AccessibilityService implements LocationLi
     public void onCreate() {
         super.onCreate();
 
-        Log.d("SHIT", "WearAlertService.onCreate()");
-
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
