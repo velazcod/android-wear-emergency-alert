@@ -6,11 +6,14 @@ android {
 
     defaultConfig {
         applicationId "com.danvelazco.android.wear.emergencyalert"
+
         minSdkVersion 20
         targetSdkVersion 20
+
         versionCode 1
         versionName "1.0.0"
     }
+
     buildTypes {
         release {
             runProguard false
