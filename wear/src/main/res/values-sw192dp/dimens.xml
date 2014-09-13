@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Values - sw192dp -->
+    <!-- Samsung Gear Live -->
+
+    <dimen name="title_top_margin">16dp</dimen>
+    <dimen name="title_left_margin">16dp</dimen>
+    <dimen name="title_drawable_padding">5dp</dimen>
+    <dimen name="question_top_margin">16dp</dimen>
+    <dimen name="wearable_button_size">48dp</dimen>
+    <dimen name="wearable_button_side_margin">16dp</dimen>
+    <dimen name="wearable_button_bottom_margin">16dp</dimen>
+
+</resources>

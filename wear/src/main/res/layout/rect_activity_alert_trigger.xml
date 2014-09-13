@@ -37,12 +37,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginTop="@dimen/title_top_margin"
+        android:layout_marginLeft="@dimen/title_left_margin"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textColor="@color/white"
         android:drawableLeft="@drawable/ic_launcher"
-        android:drawablePadding="5dp"
+        android:drawablePadding="@dimen/title_drawable_padding"
         android:gravity="center"
         android:visibility="visible"
         android:text="Emergency Alert" />
@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/tv_title"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/question_top_margin"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
         android:textColor="@color/white"
         android:gravity="center"
@@ -62,21 +62,21 @@
 
     <android.support.wearable.view.CircledImageView
         android:id="@+id/btn_confirm"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/wearable_button_size"
+        android:layout_height="@dimen/wearable_button_size"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginBottom="@dimen/wearable_button_bottom_margin"
+        android:layout_marginRight="@dimen/wearable_button_side_margin"
         android:enabled="false" />
 
     <android.support.wearable.view.CircledImageView
         android:id="@+id/btn_cancel"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/wearable_button_size"
+        android:layout_height="@dimen/wearable_button_size"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp" />
+        android:layout_marginBottom="@dimen/wearable_button_bottom_margin"
+        android:layout_marginLeft="@dimen/wearable_button_side_margin" />
 
 </RelativeLayout>
