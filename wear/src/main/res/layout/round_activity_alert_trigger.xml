@@ -19,6 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/red"
+    android:padding="24dp"
     tools:context=".AlertTriggerActivity"
     tools:deviceIds="wear_round">
 
@@ -38,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="8dp"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textColor="@color/white"
         android:drawableLeft="@drawable/ic_launcher"
@@ -53,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/tv_title"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
         android:textColor="@color/white"
         android:gravity="center"
@@ -62,8 +63,8 @@
 
     <android.support.wearable.view.CircledImageView
         android:id="@+id/btn_confirm"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="16dp"
@@ -72,8 +73,8 @@
 
     <android.support.wearable.view.CircledImageView
         android:id="@+id/btn_cancel"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="16dp"
