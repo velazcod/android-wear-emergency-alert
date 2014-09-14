@@ -21,9 +21,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
-import android.support.wearable.view.CircledImageView;
+import android.support.wearable.view.DelayedConfirmationView;
 import android.support.wearable.view.WatchViewStub;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -37,18 +36,16 @@ import com.google.android.gms.wearable.Wearable;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * @author Daniel Velazco <velazcod@gmail.com>
+ * @since 7/2/14
+ */
 public class AlertTriggerActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-
-    /**
-     * TODO:
-     * - Detect a crash and automatically start the emergency alert on the watch with a timeout
-     * http://stackoverflow.com/questions/6291931/how-to-calculate-g-force-using-x-y-z-values-from-the-accelerometer-in-android
-     */
+        GoogleApiClient.OnConnectionFailedListener, DelayedConfirmationView.DelayedConfirmationListener {
 
     // Constants
     private static final String TAG = "AlertTriggerActivity";
-    private static final int REQUEST_ID = 0x1001;
+    private static final long CONFIRMATION_DELAY_MS = 3000;
     public final static String SEND_EMERGENCY_ALERT_SMS_PATH = "/start/sendEmergencyAlert";
 
     // Members
@@ -56,9 +53,12 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
     private TextView mTvTitle;
     private TextView mTvQuestion;
     private TextView mTvStatus;
-    private CircledImageView mBtnConfirm;
-    private CircledImageView mBtnCancel;
+    private TextView mTvConfirmationStatus;
+    private DelayedConfirmationView mBtnConfirm;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,42 +67,15 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-
                 mTvTitle = (TextView) stub.findViewById(R.id.tv_title);
                 mTvQuestion = (TextView) stub.findViewById(R.id.tv_are_you_sure);
                 mTvStatus = (TextView) stub.findViewById(R.id.tv_status);
+                mTvConfirmationStatus = (TextView) stub.findViewById(R.id.tv_confirmation_status);
 
-                mBtnConfirm = (CircledImageView) stub.findViewById(R.id.btn_confirm);
-                mBtnConfirm.setImageResource(R.drawable.ic_navigation_accept);
-                mBtnConfirm.setCircleHidden(false);
-                mBtnConfirm.setCircleRadius(dpToPx(32));
-                mBtnConfirm.setCircleRadiusPressed(dpToPx(36));
-                mBtnConfirm.setCircleColor(getResources().getColor(R.color.green));
-                mBtnConfirm.setCircleBorderColor(getResources().getColor(R.color.green_dark));
-                mBtnConfirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        confirmEmergency();
-                    }
-                });
-
-                mBtnCancel = (CircledImageView) stub.findViewById(R.id.btn_cancel);
-                mBtnCancel.setImageResource(R.drawable.ic_navigation_cancel);
-                mBtnCancel.setCircleHidden(false);
-                mBtnCancel.setCircleRadius(dpToPx(32));
-                mBtnCancel.setCircleRadiusPressed(dpToPx(36));
-                mBtnCancel.setCircleColor(getResources().getColor(R.color.grey));
-                mBtnCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finish();
-                    }
-                });
-
-                // Handle the google api client connection in case it's already connected by the time this is called
-                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-                    mBtnConfirm.setEnabled(true);
-                }
+                mBtnConfirm = (DelayedConfirmationView) stub.findViewById(R.id.btn_confirm);
+                mBtnConfirm.setTotalTimeMs(CONFIRMATION_DELAY_MS);
+                mBtnConfirm.start();
+                mBtnConfirm.setListener(AlertTriggerActivity.this);
             }
         });
 
@@ -115,11 +88,9 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
 
     }
 
-    public int dpToPx(int dp) {
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -129,54 +100,103 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mBtnConfirm != null && mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mBtnConfirm.start();
+            mBtnConfirm.setListener(this);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onStop() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+        mBtnConfirm.setListener(null);
         super.onStop();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ID) {
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onConnected(Bundle bundle) {
         if (mBtnConfirm != null) {
-            mBtnConfirm.setEnabled(true);
+            mBtnConfirm.start();
+            mBtnConfirm.setListener(this);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onConnectionSuspended(int i) {
-        // TODO: show error?
-
         if (mBtnConfirm != null) {
-            mBtnConfirm.setEnabled(false);
+            mBtnConfirm.setListener(null);
         }
+
+        finish();
+        Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
+        intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
+        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.lbl_error_occurred));
+        startActivity(intent);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        // TODO: show error?
-
         if (mBtnConfirm != null) {
-            mBtnConfirm.setEnabled(false);
+            mBtnConfirm.setListener(null);
         }
+
+        finish();
+        Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
+        intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
+        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.lbl_error_occurred));
+        startActivity(intent);
     }
 
-    private void confirmEmergency() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onTimerFinished(View view) {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             (new MessageAlertTask()).execute();
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onTimerSelected(View view) {
+        mBtnConfirm.setListener(null);
+
+        finish();
+        Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
+        intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
+        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.lbl_alert_cancelled));
+        startActivity(intent);
+    }
+
+    /**
+     * Get a {@link Collection} of connected {@linkplain Node nodes} to which we can send a message to.
+     *
+     * @return {@link Collection}
+     */
     private Collection<String> getNodes() {
         HashSet<String> results= new HashSet<String>();
         NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
@@ -186,18 +206,29 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
         return results;
     }
 
+    /**
+     * {@link AsyncTask} used to send a message using the {@link MessageApi} since the method {@link
+     * MessageApi#sendMessage(GoogleApiClient, String, String, byte[])} blocks and needs to be called on a background
+     * thread.
+     */
     private class MessageAlertTask extends AsyncTask<Void, Void, Boolean> {
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         protected void onPreExecute() {
             mTvTitle.setVisibility(View.GONE);
             mTvQuestion.setVisibility(View.GONE);
             mBtnConfirm.setVisibility(View.GONE);
-            mBtnCancel.setVisibility(View.GONE);
-            mTvStatus.setText("Sending alert...");
+            mTvConfirmationStatus.setVisibility(View.GONE);
+            mTvStatus.setText(getString(R.string.lbl_sending));
             mTvStatus.setVisibility(View.VISIBLE);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         protected Boolean doInBackground(Void... params) {
             Collection<String> nodes = getNodes();
@@ -213,18 +244,17 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
             return true;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         protected void onPostExecute(Boolean success) {
-            if (success) {
-                mTvStatus.setVisibility(View.GONE);
-
-                Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
-                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
-                startActivityForResult(intent, REQUEST_ID);
-            } else {
-                mTvStatus.setText("An error occurred");
-                mTvStatus.setVisibility(View.VISIBLE);
-            }
+            finish();
+            Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
+            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, success ?
+                    ConfirmationActivity.SUCCESS_ANIMATION : ConfirmationActivity.FAILURE_ANIMATION);
+            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, success ? "Success" : "Failure");
+            startActivity(intent);
         }
     }
 

@@ -16,10 +16,11 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/red"
-    android:padding="24dp"
+    android:padding="@dimen/round_activity_padding"
     tools:context=".AlertTriggerActivity"
     tools:deviceIds="wear_round">
 
@@ -31,53 +32,62 @@
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textColor="@color/white"
         android:visibility="gone"
-        android:text="Sending..." />
+        android:text="@string/lbl_sending" />
 
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="8dp"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
         android:textColor="@color/white"
-        android:drawableLeft="@drawable/ic_launcher"
-        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/ic_launcher"
+        android:drawablePadding="@dimen/round_title_drawable_padding"
         android:gravity="center"
         android:visibility="visible"
-        android:text="Emergency Alert" />
+        android:text="@string/app_name" />
 
     <TextView
         android:id="@+id/tv_are_you_sure"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/tv_title"
-        android:layout_marginTop="8dp"
+        android:layout_centerInParent="true"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault"
         android:textColor="@color/white"
         android:gravity="center"
         android:visibility="visible"
-        android:text="Are you sure you would\nlike to send the alert?" />
+        android:textSize="@dimen/round_alert_message_text_size"
+        android:text="@string/msg_alert" />
 
-    <android.support.wearable.view.CircledImageView
-        android:id="@+id/btn_confirm"
-        android:layout_width="54dp"
-        android:layout_height="54dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:enabled="false" />
+        android:layout_centerHorizontal="true">
 
-    <android.support.wearable.view.CircledImageView
-        android:id="@+id/btn_cancel"
-        android:layout_width="54dp"
-        android:layout_height="54dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp" />
+        <android.support.wearable.view.DelayedConfirmationView
+            android:id="@+id/btn_confirm"
+            android:layout_width="@dimen/round_delayed_confirmation_button_size"
+            android:layout_height="@dimen/round_delayed_confirmation_button_size"
+            android:src="@drawable/ic_navigation_cancel"
+            app:circle_color="@color/delayed_confirmation_button_color_state"
+            app:circle_border_color="@color/green_dark"
+            app:circle_border_width="@dimen/round_delayed_confirmation_button_border_width"
+            app:circle_padding="@dimen/round_delayed_confirmation_button_padding"
+            app:circle_radius="@dimen/round_delayed_confirmation_button_radius"/>
+
+        <TextView
+            android:id="@+id/tv_confirmation_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/round_delayed_confirmation_label_margin"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:textColor="@color/white"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault"
+            android:text="@string/lbl_sending"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -17,6 +17,9 @@
 <resources>
 
     <color name="red">#f00</color>
+    <color name="green">#32CD32</color>
     <color name="green_dark">#056900</color>
+    <color name="grey_light">#ff939393</color>
+    <color name="grey_dark">#777777</color>
 
 </resources>

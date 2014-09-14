@@ -4,12 +4,22 @@
     <!-- Values - default -->
     <!-- LG G Watch -->
 
-    <dimen name="title_top_margin">8dp</dimen>
-    <dimen name="title_left_margin">8dp</dimen>
-    <dimen name="title_drawable_padding">5dp</dimen>
-    <dimen name="question_top_margin">8dp</dimen>
-    <dimen name="wearable_button_size">48dp</dimen>
-    <dimen name="wearable_button_side_margin">16dp</dimen>
-    <dimen name="wearable_button_bottom_margin">16dp</dimen>
+    <dimen name="activity_padding">16dp</dimen>
+    <dimen name="title_drawable_padding">8dp</dimen>
+    <dimen name="alert_message_text_size">12sp</dimen>
+    <dimen name="delayed_confirmation_button_size">56dp</dimen>
+    <dimen name="delayed_confirmation_button_border_width">6dp</dimen>
+    <dimen name="delayed_confirmation_button_padding">0dp</dimen>
+    <dimen name="delayed_confirmation_button_radius">24dp</dimen>
+    <dimen name="delayed_confirmation_label_margin">8dp</dimen>
+
+    <dimen name="round_activity_padding">32dp</dimen>
+    <dimen name="round_title_drawable_padding">8dp</dimen>
+    <dimen name="round_alert_message_text_size">12sp</dimen>
+    <dimen name="round_delayed_confirmation_button_size">56dp</dimen>
+    <dimen name="round_delayed_confirmation_button_border_width">6dp</dimen>
+    <dimen name="round_delayed_confirmation_button_padding">0dp</dimen>
+    <dimen name="round_delayed_confirmation_button_radius">24dp</dimen>
+    <dimen name="round_delayed_confirmation_label_margin">8dp</dimen>
 
 </resources>

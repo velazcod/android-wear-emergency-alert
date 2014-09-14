@@ -37,6 +37,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
+/**
+ * @author Daniel Velazco <velazcod@gmail.com>
+ * @since 7/2/14
+ */
 public class AlertPreferencesActivity extends Activity {
 
     // Constants

@@ -18,4 +18,9 @@
 
     <string name="app_name">Emergency Alert</string>
 
+    <string name="msg_alert">Sending alert and location to\npre-determined contact</string>
+    <string name="lbl_sending">Sending...</string>
+    <string name="lbl_error_occurred">An error occurred</string>
+    <string name="lbl_alert_cancelled">Emergency alert cancelled</string>
+
 </resources>

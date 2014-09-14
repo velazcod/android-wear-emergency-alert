@@ -44,6 +44,10 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 
+/**
+ * @author Daniel Velazco <velazcod@gmail.com>
+ * @since 7/2/14
+ */
 public class WearAlertService extends AccessibilityService implements LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
 
