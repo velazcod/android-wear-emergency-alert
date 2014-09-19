@@ -16,159 +16,92 @@
 
 package com.danvelazco.android.wear.emergencyalert.service;
 
-import android.accessibilityservice.AccessibilityService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.telephony.SmsManager;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
-import android.view.accessibility.AccessibilityEvent;
-import android.widget.Toast;
 import com.danvelazco.android.wear.emergencyalert.AlertPreferencesActivity;
 import com.danvelazco.android.wear.emergencyalert.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.MessageApi;
+import com.danvelazco.android.wear.emergencyalert.util.SMSUtil;
 import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableListenerService;
 
 /**
+ * Sicne a {@link WearableListenerService} is short-lived and is quickly killed, we try to delegate
+ * finding an accurate {@link Location} to the {@link FineLocationSMSIntentService} from here, but
+ * only if the option to send location data is enabled by the user.
+ *
  * @author Daniel Velazco <velazcod@gmail.com>
  * @since 7/2/14
  */
-public class WearAlertService extends AccessibilityService implements LocationListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, MessageApi.MessageListener {
-
+public class WearAlertService extends WearableListenerService {
+    
     // Constants
     private final static int ALERT_NOTIFICATION_ID = 0x6001;
     private final static int MSG_TRIGGER_ALERT = 0x5001;
+    private final static int DELAY_TRIGGER_ALERT = 500;
     public final static String SEND_EMERGENCY_ALERT_SMS_PATH = "/start/sendEmergencyAlert";
 
     // Members
-    private GoogleApiClient mGoogleApiClient = null;
     private SharedPreferences mSharedPrefs = null;
     private NotificationManager mNotificationManager = null;
     private LocationManager mLocationManager;
-    private String mTempSmsNumberToSendLocationTo = null;
 
+    private Handler mMessageHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_TRIGGER_ALERT:
+                    triggerAlert();
+            }
+        }
+    };
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onCreate() {
         super.onCreate();
-
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-        // Create the GoogleApiClient object we'll be using to connect in order to use the Wear API
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();
-
-        Toast.makeText(this, "Service started", Toast.LENGTH_LONG).show();
-
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
-    @Override
-    public void onDestroy() {
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-        }
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-            mGoogleApiClient.disconnect();
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) {
-        // No implementation
-    }
-
-    @Override
-    public void onInterrupt() {
-        // No implementation
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-        }
-
-        if (location != null && mTempSmsNumberToSendLocationTo != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            String message = String.format(getString(R.string.message_current_location),
-                    Double.toString(latitude), Double.toString(longitude),
-                    getFormattedTimestamp(location.getTime()));
-            sendSms(mTempSmsNumberToSendLocationTo, message);
-            mTempSmsNumberToSendLocationTo = null;
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        // No implementation
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        // No implementation
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        if (mLocationManager != null) {
-            mLocationManager.removeUpdates(this);
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Wearable.MessageApi.addListener(mGoogleApiClient, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        // No implementation
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        // No implementation
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         if (messageEvent.getPath().equals(SEND_EMERGENCY_ALERT_SMS_PATH)) {
-            mMessageHandler.sendEmptyMessage(MSG_TRIGGER_ALERT);
+            // Don't allow multiple consecutive messages firing right next to another
+            // to trigger an alert when they are too close together
+            mMessageHandler.removeMessages(MSG_TRIGGER_ALERT);
+            mMessageHandler.sendEmptyMessageDelayed(MSG_TRIGGER_ALERT, DELAY_TRIGGER_ALERT);
         }
     }
 
-    private String getFormattedTimestamp(long timestamp) {
-        return DateUtils.formatDateTime(this, timestamp,
-                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR
-                        | DateUtils.FORMAT_SHOW_TIME
-        );
-    }
-
+    /**
+     * Trigger the alert by sending an SMS with a pre-configured message to a pre-configured phone number. Here we also
+     * take user's preferences into consideration. A {@link Notification} is posted, only if the user has that option
+     * enabled, and the last known location is sent immediately, only if the user has that option enabled.
+     * <p/>
+     * Finally, if the option to send the location is enabled, the {@link FineLocationSMSIntentService} will be started
+     * and the phone number will be passed as an {@link Intent} extra. The {@link FineLocationSMSIntentService} will
+     * make sure to fetch a more accurate and current location point, then send it to the phone number passed when the
+     * service was started, and then it will kill it self.
+     */
     private void triggerAlert() {
+        // Get the user preferences
         final String smsNumber = mSharedPrefs.getString(AlertPreferencesActivity.PREF_KEY_SMS_NUMBER, null);
         final String smsMessage = mSharedPrefs.getString(AlertPreferencesActivity.PREF_KEY_SMS_MESSAGE,
                 getString(R.string.default_emergency_message));
@@ -177,47 +110,46 @@ public class WearAlertService extends AccessibilityService implements LocationLi
         boolean showNotification = mSharedPrefs.getBoolean(AlertPreferencesActivity.PREF_KEY_SHOW_NOTIFICATION,
                 true);
 
+        // Only keep going if we have a valid message and phone number
         if (!TextUtils.isEmpty(smsNumber) && !TextUtils.isEmpty(smsMessage)) {
             if (showNotification) {
+                // Only post the notification if the option is enabled
                 showNotification();
             }
 
-            sendSms(smsNumber, smsMessage);
+            // Send the SMS with the specific messaged to the specific phone number set by the user
+            SMSUtil.sendSms(smsNumber, smsMessage);
 
+            // Only send the phone's location if the option is enabled
             if (sendLocation) {
+                // Get the last known location and send it to the specific phone number
                 Location location = mLocationManager
                         .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                 if (location != null) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
+
+                    // Format the message with specific coordinates
                     String message = String.format(getString(R.string.message_last_location),
                             Double.toString(latitude), Double.toString(longitude),
-                            getFormattedTimestamp(location.getTime()));
-                    sendSms(smsNumber, message);
+                            SMSUtil.getFormattedTimestamp(this, location.getTime()));
+
+                    // Send the SMS with the last known location
+                    SMSUtil.sendSms(smsNumber, message);
                 }
 
-                Criteria criteria = new Criteria();
-                criteria.setAccuracy(Criteria.ACCURACY_FINE);
-                String locationProvider = mLocationManager.getBestProvider(criteria, true);
-                if (locationProvider != null) {
-                    mTempSmsNumberToSendLocationTo = smsNumber;
-                    mLocationManager.requestLocationUpdates(locationProvider,
-                            300000,     /** time intervals in ms (5 mins) **/
-                            10,         /** min distance in meters **/
-                            WearAlertService.this);
-                }
+                // Start the location service and pass the phone number as an extra
+                Intent locationService = new Intent(this, FineLocationSMSIntentService.class);
+                locationService.putExtra(FineLocationSMSIntentService.KEY_SMS_PHONE_NUMBER, smsNumber);
+                startService(locationService);
             }
         }
     }
 
-    private void sendSms(String number, String message) {
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(number, null, message, null, null);
-    }
-
+    /**
+     * Post the notification to the {@link NotificationManager}
+     */
     private void showNotification() {
-        removeNotification();
-
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
@@ -232,26 +164,9 @@ public class WearAlertService extends AccessibilityService implements LocationLi
                 PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(contentIntent);
 
-        // Add as notification
         if (mNotificationManager != null) {
             mNotificationManager.notify(ALERT_NOTIFICATION_ID, builder.build());
         }
     }
-
-    private void removeNotification() {
-        if (mNotificationManager != null) {
-            mNotificationManager.cancel(ALERT_NOTIFICATION_ID);
-        }
-    }
-
-    private Handler mMessageHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_TRIGGER_ALERT:
-                    triggerAlert();
-            }
-        }
-    };
 
 }

@@ -18,10 +18,6 @@
 
     <PreferenceCategory android:title="@string/pref_category_general">
 
-        <PreferenceScreen
-            android:key="_enable_service"
-            android:title="@string/pref_enable_service"/>
-
         <CheckBoxPreference
             android:key="_show_notification"
             android:title="@string/pref_show_notification"
