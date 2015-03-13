@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:1.1.+'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -15,5 +15,31 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+    }
+}
+
+ext {
+    compileSdkVersion = 22
+    buildToolsVersion = "22"
+
+    minSdkVersion = 16
+    targetSdkVersion = 22
+
+    wearMinSdkVersion = 20
+    wearTargetSdkVersion = 22
+
+    SUPPORT_LIBRARY_VERSION = "22.+"
+    GOOGLE_PLAY_SERVICES_VERSION = "6.5.+"
+
+    preDexLibs = !project.hasProperty('disablePreDex')
+}
+
+subprojects {
+    project.plugins.whenPluginAdded { plugin ->
+        if ("com.android.build.gradle.AppPlugin".equals(plugin.class.name)) {
+            project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
+        } else if ("com.android.build.gradle.LibraryPlugin".equals(plugin.class.name)) {
+            project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
+        }
     }
 }

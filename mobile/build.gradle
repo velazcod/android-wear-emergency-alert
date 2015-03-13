@@ -1,14 +1,19 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.0.0"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "com.danvelazco.android.wear.emergencyalert"
 
-        minSdkVersion 18
-        targetSdkVersion 21
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
 
         versionCode 5
         versionName "1.3"
@@ -16,17 +21,20 @@ android {
 
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
 
+final GPS_VERSION = rootProject.ext.GOOGLE_PLAY_SERVICES_VERSION
+final SUPPORT_LIBRARY_VERSION = rootProject.ext.SUPPORT_LIBRARY_VERSION
+
 dependencies {
     wearApp project(':wear')
 
-    compile 'com.google.android.gms:play-services-wearable:+'
-    compile 'com.android.support:support-v13:21.+'
+    compile "com.google.android.gms:play-services-wearable:$GPS_VERSION"
+    compile "com.android.support:support-v13:$SUPPORT_LIBRARY_VERSION"
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
