@@ -27,6 +27,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.text.TextUtils;
+import android.util.Log;
+import com.danvelazco.android.wear.emergencyalert.BuildConfig;
 import com.danvelazco.android.wear.emergencyalert.R;
 import com.danvelazco.android.wear.emergencyalert.util.SMSUtil;
 
@@ -40,7 +42,7 @@ import com.danvelazco.android.wear.emergencyalert.util.SMSUtil;
 public class FineLocationSMSIntentService extends Service implements LocationListener {
 
     // Constants
-    public static final String LOG_TAG = "FineLocationSMSIntentService";
+    public static final String LOG_TAG = "FineLocationSMSService";
     private static final int WAKELOCK_TIMEOUT_MS = 600000; // 10 minutes
     public static final String KEY_SMS_PHONE_NUMBER = "_key_phone_number";
 
@@ -89,8 +91,25 @@ public class FineLocationSMSIntentService extends Service implements LocationLis
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("NullableProblems")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (BuildConfig.DEBUG) {
+            if (intent != null) {
+                Log.d(LOG_TAG, "onStartCommand(intent=" + intent.toString() + ", flags=" + flags + "," +
+                        "startId=" + startId + ")");
+                if (intent.hasExtra(KEY_SMS_PHONE_NUMBER)) {
+                    Log.d(LOG_TAG, " -- KEY_SMS_PHONE_NUMBER=" + intent.getStringExtra(KEY_SMS_PHONE_NUMBER));
+                }
+            } else {
+                Log.d(LOG_TAG, "onStartCommand(intent=null)");
+            }
+        }
+
+        if (intent == null) {
+            return START_FLAG_RETRY;
+        }
+
         String smsNumber = intent.getStringExtra(KEY_SMS_PHONE_NUMBER);
 
         if (!TextUtils.isEmpty(smsNumber)) {
