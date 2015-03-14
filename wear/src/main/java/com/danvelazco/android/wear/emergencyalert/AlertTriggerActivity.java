@@ -121,7 +121,9 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-        mBtnConfirm.setListener(null);
+        if (mBtnConfirm != null) {
+            mBtnConfirm.setListener(null);
+        }
         super.onStop();
     }
 
