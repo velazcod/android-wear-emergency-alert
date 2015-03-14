@@ -31,11 +31,12 @@
     <dimen name="delayed_confirmation_label_margin">8dp</dimen>
     <dimen name="delayed_confirmation_label_text_size">16sp</dimen>
 
-    <dimen name="round_activity_padding">32dp</dimen>
+    <dimen name="round_activity_padding">24dp</dimen>
+    <dimen name="round_activity_padding_top">32dp</dimen>
     <dimen name="round_activity_padding_bottom">32dp</dimen>
     <dimen name="round_title_drawable_padding">8dp</dimen>
-    <dimen name="round_title_text_size">24sp</dimen>
-    <dimen name="round_alert_message_text_size">14sp</dimen>
+    <dimen name="round_title_text_size">18sp</dimen>
+    <dimen name="round_alert_message_text_size">13sp</dimen>
     <dimen name="round_delayed_confirmation_button_size">56dp</dimen>
     <dimen name="round_delayed_confirmation_button_border_width">6dp</dimen>
     <dimen name="round_delayed_confirmation_button_padding">0dp</dimen>
