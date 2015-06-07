@@ -149,8 +149,8 @@ public class WearAlertService extends WearableListenerService {
                         .setContentTitle(getString(R.string.notification_title))
                         .setContentText(getString(R.string.notification_content))
                         .setAutoCancel(true)
-                        //.setVisibility(NotificationCompat.VISIBILITY_SECRET)
-                        .setLocalOnly(true);
+                        .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+                        .setLocalOnly(false);
 
         Intent notificationIntent = new Intent(this, AlertPreferencesActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
