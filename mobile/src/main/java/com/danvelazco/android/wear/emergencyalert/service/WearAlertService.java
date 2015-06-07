@@ -35,6 +35,8 @@ import com.danvelazco.android.wear.emergencyalert.util.SMSUtil;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Sicne a {@link WearableListenerService} is short-lived and is quickly killed, we try to delegate
  * finding an accurate {@link Location} to the {@link FineLocationSMSIntentService} from here, but
@@ -55,16 +57,7 @@ public class WearAlertService extends WearableListenerService {
     private SharedPreferences mSharedPrefs = null;
     private NotificationManager mNotificationManager = null;
     private LocationManager mLocationManager;
-
-    private Handler mMessageHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_TRIGGER_ALERT:
-                    triggerAlert();
-            }
-        }
-    };
+    private ViewHandler mMessageHandler = new ViewHandler(this);
 
     /**
      * {@inheritDoc}
@@ -166,6 +159,37 @@ public class WearAlertService extends WearableListenerService {
 
         if (mNotificationManager != null) {
             mNotificationManager.notify(ALERT_NOTIFICATION_ID, builder.build());
+        }
+    }
+
+    private static class ViewHandler extends Handler {
+
+        // Members
+        private WeakReference<WearAlertService> mmParent;
+
+        /**
+         * Constructor.
+         *
+         * @param parent
+         *         {@link WearAlertService}
+         */
+        private ViewHandler(WearAlertService parent) {
+            mmParent = new WeakReference<>(parent);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void handleMessage(Message msg) {
+            WearAlertService parent = mmParent.get();
+            switch (msg.what) {
+                case MSG_TRIGGER_ALERT:
+                    if (parent != null) {
+                        parent.triggerAlert();
+                    }
+                    break;
+            }
         }
     }
 
