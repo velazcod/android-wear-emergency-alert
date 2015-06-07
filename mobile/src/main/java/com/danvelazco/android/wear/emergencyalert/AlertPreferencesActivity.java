@@ -16,18 +16,18 @@
 
 package com.danvelazco.android.wear.emergencyalert;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 /**
  * @author Daniel Velazco <velazcod@gmail.com>
  * @since 7/2/14
  */
-public class AlertPreferencesActivity extends Activity {
+public class AlertPreferencesActivity extends AppCompatActivity {
 
     // Preference Keys
     public static final String PREF_KEY_SMS_NUMBER = "_contact_phone_number";
