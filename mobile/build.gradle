@@ -33,8 +33,9 @@ final SUPPORT_LIBRARY_VERSION = rootProject.ext.SUPPORT_LIBRARY_VERSION
 dependencies {
     wearApp project(':wear')
 
-    compile "com.google.android.gms:play-services-wearable:$GPS_VERSION"
-    compile "com.android.support:support-v13:$SUPPORT_LIBRARY_VERSION"
+    compile "com.google.android.gms:play-services-wearable:${GPS_VERSION}"
+    compile "com.android.support:support-v13:${SUPPORT_LIBRARY_VERSION}"
+    compile "com.android.support:appcompat-v7:${SUPPORT_LIBRARY_VERSION}"
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

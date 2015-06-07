@@ -27,11 +27,12 @@ android {
     }
 }
 
+final WEARABLE_SUPPORT_LIBRARY_VERSION = rootProject.ext.WEARABLE_SUPPORT_LIBRARY_VERSION
 final GPS_VERSION = rootProject.ext.GOOGLE_PLAY_SERVICES_VERSION
 
 dependencies {
-    compile 'com.google.android.support:wearable:+'
-    compile "com.google.android.gms:play-services-wearable:$GPS_VERSION"
+    compile "com.google.android.support:wearable:${WEARABLE_SUPPORT_LIBRARY_VERSION}"
+    compile "com.google.android.gms:play-services-wearable:${GPS_VERSION}"
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
