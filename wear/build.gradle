@@ -15,8 +15,8 @@ android {
         minSdkVersion rootProject.ext.wearMinSdkVersion
         targetSdkVersion rootProject.ext.wearTargetSdkVersion
 
-        versionCode 6
-        versionName "1.4"
+        versionCode 7
+        versionName "1.5"
     }
 
     buildTypes {
