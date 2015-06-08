@@ -20,6 +20,7 @@
 
     <string name="msg_alert">Sending alert and location\nto pre-determined contact</string>
     <string name="lbl_sending">Sending...</string>
+    <string name="lbl_confirm">Confirm</string>
     <string name="lbl_error_occurred">An error occurred</string>
     <string name="lbl_alert_cancelled">Emergency alert cancelled</string>
 

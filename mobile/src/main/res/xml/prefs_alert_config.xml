@@ -24,6 +24,13 @@
             android:summary="@string/pref_show_notification_summary"
             android:defaultValue="true"/>
 
+        <CheckBoxPreference
+            android:key="_use_confirmation_button"
+            android:title="@string/pref_use_confirmation_button"
+            android:summaryOn="@string/pref_use_confirmation_button_sry_on"
+            android:summaryOff="@string/pref_use_confirmation_button_sry_off"
+            android:defaultValue="false"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_sms_config">

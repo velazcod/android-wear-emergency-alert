@@ -42,6 +42,12 @@
 
         <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
 
+        <service android:name=".service.WearDataListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

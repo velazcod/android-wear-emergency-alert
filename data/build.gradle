@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileOptions {
@@ -10,15 +10,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.danvelazco.android.wear.emergencyalert"
-
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
 
-        versionCode 6
-        versionName "1.4"
+        versionCode 1
+        versionName "1.0"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -28,15 +25,8 @@ android {
 }
 
 final GPS_VERSION = rootProject.ext.GOOGLE_PLAY_SERVICES_VERSION
-final SUPPORT_LIBRARY_VERSION = rootProject.ext.SUPPORT_LIBRARY_VERSION
 
 dependencies {
-    compile project(':data')
-    wearApp project(':wear')
-
     compile "com.google.android.gms:play-services-wearable:${GPS_VERSION}"
-    compile "com.android.support:support-v13:${SUPPORT_LIBRARY_VERSION}"
-    compile "com.android.support:appcompat-v7:${SUPPORT_LIBRARY_VERSION}"
-
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

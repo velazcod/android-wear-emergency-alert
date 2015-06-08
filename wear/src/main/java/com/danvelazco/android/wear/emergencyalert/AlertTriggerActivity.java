@@ -18,8 +18,10 @@ package com.danvelazco.android.wear.emergencyalert;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.DelayedConfirmationView;
 import android.support.wearable.view.WatchViewStub;
@@ -45,16 +47,19 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
 
     // Constants
     private static final String TAG = "AlertTriggerActivity";
-    private static final long CONFIRMATION_DELAY_MS = 3000;
+    private static final long CONFIRMATION_DELAY_MS = 3500;
     public final static String SEND_EMERGENCY_ALERT_SMS_PATH = "/start/sendEmergencyAlert";
+    public final static String PREF_KEY_USE_CONFIRMATION_BTN = "_pref_use_confirmation_btn";
 
     // Members
+    private SharedPreferences mSharedPrefs = null;
     private GoogleApiClient mGoogleApiClient = null;
     private TextView mTvTitle;
     private TextView mTvQuestion;
     private TextView mTvStatus;
     private TextView mTvConfirmationStatus;
     private DelayedConfirmationView mBtnConfirm;
+    private boolean mUseConfirmationButton;
 
     /**
      * {@inheritDoc}
@@ -63,6 +68,10 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alert_trigger);
+
+        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mUseConfirmationButton = mSharedPrefs.getBoolean(PREF_KEY_USE_CONFIRMATION_BTN, false);
+
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
@@ -73,9 +82,17 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
                 mTvConfirmationStatus = (TextView) stub.findViewById(R.id.tv_confirmation_status);
 
                 mBtnConfirm = (DelayedConfirmationView) stub.findViewById(R.id.btn_confirm);
-                mBtnConfirm.setTotalTimeMs(CONFIRMATION_DELAY_MS);
-                mBtnConfirm.start();
                 mBtnConfirm.setListener(AlertTriggerActivity.this);
+
+                if (mUseConfirmationButton) {
+                    mTvConfirmationStatus.setText(R.string.lbl_confirm);
+                    mBtnConfirm.setImageResource(R.drawable.ic_navigation_accept);
+                } else {
+                    mTvConfirmationStatus.setText(R.string.lbl_sending);
+                    mBtnConfirm.setImageResource(R.drawable.ic_navigation_cancel);
+                    mBtnConfirm.setTotalTimeMs(CONFIRMATION_DELAY_MS);
+                    mBtnConfirm.start();
+                }
             }
         });
 
@@ -132,10 +149,7 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
      */
     @Override
     public void onConnected(Bundle bundle) {
-        if (mBtnConfirm != null) {
-            mBtnConfirm.start();
-            mBtnConfirm.setListener(this);
-        }
+        // No need to do anything here
     }
 
     /**
@@ -175,9 +189,7 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
      */
     @Override
     public void onTimerFinished(View view) {
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            (new MessageAlertTask()).execute();
-        }
+        sendAlert();
     }
 
     /**
@@ -185,13 +197,23 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
      */
     @Override
     public void onTimerSelected(View view) {
-        mBtnConfirm.setListener(null);
+        if (mUseConfirmationButton) {
+            sendAlert();
+        } else {
+            mBtnConfirm.setListener(null);
 
-        finish();
-        Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
-        intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
-        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.lbl_alert_cancelled));
-        startActivity(intent);
+            finish();
+            Intent intent = new Intent(AlertTriggerActivity.this, ConfirmationActivity.class);
+            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.FAILURE_ANIMATION);
+            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, getString(R.string.lbl_alert_cancelled));
+            startActivity(intent);
+        }
+    }
+
+    private void sendAlert() {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            (new MessageAlertTask()).execute();
+        }
     }
 
     /**

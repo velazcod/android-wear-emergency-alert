@@ -32,6 +32,9 @@
     <string name="pref_sms_send_location_summary">Send your location in a separate message after the emergency message is sent.</string>
     <string name="pref_show_notification">Show notification</string>
     <string name="pref_show_notification_summary">Show a notification on your phone when an emergency alert is triggered from the watch.</string>
+    <string name="pref_use_confirmation_button">Use a confirmation button on watch</string>
+    <string name="pref_use_confirmation_button_sry_on">A confirmation is required after you start an emergency alert from the watch</string>
+    <string name="pref_use_confirmation_button_sry_off">A delayed confirmation will be shown when an emergency alert is triggered from the watch, if not cancelled, the alert will be sent.</string>
 
     <string name="default_emergency_message">Automatic emergency message: Something happened!</string>
 

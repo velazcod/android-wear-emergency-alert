@@ -16,12 +16,20 @@
 
 package com.danvelazco.android.wear.emergencyalert;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import com.danvelazco.android.wear.emergencyalert.data.PreferencesData;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 /**
  * @author Daniel Velazco <velazcod@gmail.com>
@@ -34,6 +42,7 @@ public class AlertPreferencesActivity extends AppCompatActivity {
     public static final String PREF_KEY_SMS_MESSAGE = "_sms_emergency_message";
     public static final String PREF_KEY_SMS_MESSAGE_LOCATION = "_sms_send_location";
     public static final String PREF_KEY_SHOW_NOTIFICATION = "_show_notification";
+    public static final String PREF_KEY_USE_CONFIRMATION_BTN = "_use_confirmation_button";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +59,14 @@ public class AlertPreferencesActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class AlertsPreferenceFragment extends PreferenceFragment {
+    public static class AlertsPreferenceFragment extends PreferenceFragment implements
+            GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+        // Members
+        private GoogleApiClient mGoogleApiClient = null;
 
         // Preferences
+        private CheckBoxPreference mmPrefUseConfirmationBtn = null;
         private EditTextPreference mmPrefSmsNumber = null;
         private EditTextPreference mmPrefSmsMessage = null;
 
@@ -72,6 +86,16 @@ public class AlertPreferencesActivity extends AppCompatActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.prefs_alert_config);
+
+            mmPrefUseConfirmationBtn = (CheckBoxPreference) findPreference(
+                    PREF_KEY_USE_CONFIRMATION_BTN);
+            mmPrefUseConfirmationBtn.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    setUseConfirmationButtonPreference((Boolean) newValue);
+                    return true;
+                }
+            });
 
             mmPrefSmsNumber = (EditTextPreference) findPreference(PREF_KEY_SMS_NUMBER);
             if (mmPrefSmsNumber != null) {
@@ -102,6 +126,14 @@ public class AlertPreferencesActivity extends AppCompatActivity {
                     }
                 });
             }
+
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            mGoogleApiClient.connect();
+
         }
 
         /**
@@ -120,6 +152,74 @@ public class AlertPreferencesActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(mmPrefSmsMessage.getText())) {
                     mmPrefSmsMessage.setSummary(mmPrefSmsMessage.getText());
                 }
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onDestroy() {
+            if ((mGoogleApiClient != null) && mGoogleApiClient.isConnected()) {
+                mGoogleApiClient.disconnect();
+            }
+            super.onDestroy();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onConnected(Bundle bundle) {
+            if (mmPrefUseConfirmationBtn != null) {
+                setUseConfirmationButtonPreference(mmPrefUseConfirmationBtn.isChecked());
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onConnectionSuspended(int i) {
+            // Not used
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onConnectionFailed(ConnectionResult connectionResult) {
+            // Not used
+        }
+
+        /**
+         * Set the new value for the preference for using a confirmation button on the watch app
+         *
+         * @param newValue
+         *         {@link boolean}
+         */
+        private void setUseConfirmationButtonPreference(boolean newValue) {
+            (new SetPreferenceTask()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, newValue);
+        }
+
+        private class SetPreferenceTask extends AsyncTask<Boolean, Void, Boolean> {
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected Boolean doInBackground(Boolean... params) {
+                if (params.length != 1) {
+                    throw new IllegalArgumentException("At least one boolean value must be set, but only one.");
+                }
+
+                if ((mGoogleApiClient != null) && mGoogleApiClient.isConnected()) {
+                    PutDataMapRequest dataMap = PreferencesData.toDataMap(params[0]);
+                    PutDataRequest request = dataMap.asPutDataRequest();
+                    Wearable.DataApi.putDataItem(mGoogleApiClient, request);
+                    return true;
+                }
+                return false;
             }
         }
 
