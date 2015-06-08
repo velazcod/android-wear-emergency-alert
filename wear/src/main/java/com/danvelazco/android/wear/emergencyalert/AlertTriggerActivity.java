@@ -255,17 +255,19 @@ public class AlertTriggerActivity extends Activity implements GoogleApiClient.Co
          */
         @Override
         protected Boolean doInBackground(Void... params) {
+            boolean messageSent = false;
             Collection<String> nodes = getNodes();
             for (String node : nodes) {
                 MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node,
                         SEND_EMERGENCY_ALERT_SMS_PATH, null).await();
-                if (!result.getStatus().isSuccess()) {
+                if (result.getStatus().isSuccess()) {
+                    messageSent = true;
+                } else {
                     Log.e(TAG, "ERROR: failed to send Message: " + result.getStatus());
-                    return false;
                 }
             }
 
-            return true;
+            return messageSent;
         }
 
         /**
