@@ -29,7 +29,7 @@ ext {
     wearTargetSdkVersion = 22
 
     SUPPORT_LIBRARY_VERSION = "22.2.+"
-    GOOGLE_PLAY_SERVICES_VERSION = "7.5.+"
+    GOOGLE_PLAY_SERVICES_VERSION = "7.3.+"
     WEARABLE_SUPPORT_LIBRARY_VERSION = "1.2.+"
 
     preDexLibs = !project.hasProperty('disablePreDex')
